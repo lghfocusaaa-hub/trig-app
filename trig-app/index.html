@@ -1,0 +1,462 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>三角函数解析图 · 交互式</title>
+  <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4.3.1/dist/index.global.js"></script>
+  <link rel="stylesheet" href="styles.css">
+  <style type="text/tailwindcss">
+    @theme inline {
+      --color-background: var(--tri-background);
+      --color-foreground: var(--tri-foreground);
+      --color-card: var(--tri-card);
+      --color-card-foreground: var(--tri-card-foreground);
+      --color-primary: var(--tri-primary);
+      --color-primary-foreground: var(--tri-primary-foreground);
+      --color-muted: var(--tri-muted);
+      --color-muted-foreground: var(--tri-muted-foreground);
+      --color-border: var(--tri-border);
+      --color-input: var(--tri-input);
+      --color-ring: var(--tri-ring);
+      --radius-sm: var(--tri-radius-small);
+      --radius-md: var(--tri-radius-medium);
+      --radius-lg: var(--tri-radius-large);
+      --radius-full: var(--tri-radius-full);
+      --font-sans: var(--tri-font-body);
+      --font-mono: var(--tri-font-mono);
+    }
+    @layer base {
+      body { background: var(--tri-background); color: var(--tri-foreground); }
+    }
+  </style>
+</head>
+<body class="min-h-screen font-sans antialiased">
+
+  <main class="w-full max-w-6xl mx-auto px-4 sm:px-6 py-6 sm:py-10">
+
+    <!-- ============ 头部 ============ -->
+    <header class="mb-6 flex items-start sm:items-center justify-between gap-4 flex-col sm:flex-row">
+      <div>
+        <h1 class="text-2xl sm:text-3xl md:text-4xl font-bold text-foreground font-title">三角函数解析图</h1>
+        <p class="text-muted-foreground text-sm mt-1">直角三角形模型 · 角度与边长公式 · 交互式可视化</p>
+      </div>
+      <div class="flex items-center gap-2">
+        <button id="reset-btn" class="btn-ghost" title="重置当前视图">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 9-9"/><path d="M3 4v5h5"/></svg>
+          重置
+        </button>
+        <button id="theme-toggle" class="btn-ghost" title="切换主题" aria-label="切换主题">
+          <svg id="icon-sun" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:none"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"/></svg>
+          <svg id="icon-moon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+        </button>
+      </div>
+    </header>
+
+    <!-- ============ Tab 导航 ============ -->
+    <nav class="mb-6 flex items-center gap-2 overflow-x-auto no-scrollbar pb-1" role="tablist" aria-label="视图切换">
+      <button class="tab-btn active" data-tab="diagram" role="tab" aria-selected="true">解析图</button>
+      <button class="tab-btn" data-tab="circle" role="tab" aria-selected="false">单位圆</button>
+      <button class="tab-btn" data-tab="curves" role="tab" aria-selected="false">函数曲线</button>
+      <button class="tab-btn" data-tab="solver" role="tab" aria-selected="false">三角形求解器</button>
+    </nav>
+
+    <!-- ============ 视图 1：解析图 ============ -->
+    <section data-view="diagram" class="view-panel">
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-8 items-start">
+
+        <!-- 三角形卡片 -->
+        <div class="card p-5 sm:p-6 flex flex-col items-center">
+          <div class="w-full flex items-center justify-between mb-3">
+            <h2 class="text-lg font-semibold text-foreground">直角三角形 ABC</h2>
+            <span class="text-xs text-muted-foreground">拖动顶点 A / B 改变形状</span>
+          </div>
+          <svg id="triangle-svg" viewBox="0 0 420 360" class="w-full max-w-md h-auto touch-none select-none" aria-label="可交互的直角三角形 ABC，C 为直角">
+            <defs>
+              <linearGradient id="tri-fill" x1="0" y1="0" x2="1" y2="1">
+                <stop offset="0%" stop-color="var(--tri-primary-50)" stop-opacity="0.9"/>
+                <stop offset="100%" stop-color="var(--tri-primary-100)" stop-opacity="0.7"/>
+              </linearGradient>
+            </defs>
+
+            <!-- 三角形填充 -->
+            <polygon id="tri-polygon" points="80,320 320,320 80,80" fill="url(#tri-fill)" stroke="var(--tri-primary)" stroke-width="3" stroke-linejoin="round"/>
+
+            <!-- 直角标记 -->
+            <polyline id="right-angle" points="110,320 110,290 80,290" fill="none" stroke="var(--tri-primary-700)" stroke-width="2"/>
+            <text id="right-label" x="95" y="282" text-anchor="middle" class="formula" font-size="12" fill="var(--tri-primary-700)">90°</text>
+
+            <!-- 角度弧 -->
+            <path id="arc-A" d="" class="angle-arc"/>
+            <path id="arc-B" d="" class="angle-arc"/>
+
+            <!-- 顶点标签 -->
+            <text id="label-A" x="65" y="75" text-anchor="middle" class="formula" font-size="22" font-weight="700" fill="var(--tri-foreground)">A</text>
+            <text id="label-B" x="340" y="335" text-anchor="middle" class="formula" font-size="22" font-weight="700" fill="var(--tri-foreground)">B</text>
+            <text id="label-C" x="60" y="345" text-anchor="middle" class="formula" font-size="22" font-weight="700" fill="var(--tri-foreground)">C</text>
+
+            <!-- 边标签 -->
+            <text id="label-b" x="40" y="195" text-anchor="middle" class="formula" font-size="16" fill="var(--tri-primary-800)">b</text>
+            <text id="label-a" x="200" y="350" text-anchor="middle" class="formula" font-size="16" fill="var(--tri-primary-800)">a</text>
+            <text id="label-c" x="215" y="185" text-anchor="middle" class="formula" font-size="16" fill="var(--tri-primary-800)">c</text>
+
+            <!-- 边长度数值 -->
+            <text id="len-b" x="40" y="215" text-anchor="middle" class="formula" font-size="11" fill="var(--tri-muted-foreground)"></text>
+            <text id="len-a" x="200" y="345" text-anchor="middle" class="formula" font-size="11" fill="var(--tri-muted-foreground)" dy="-0"></text>
+            <text id="len-c" x="225" y="205" text-anchor="middle" class="formula" font-size="11" fill="var(--tri-muted-foreground)"></text>
+
+            <!-- 顶点手柄 -->
+            <circle id="handle-A" class="vertex-handle" cx="80" cy="80" r="9" data-vertex="A" role="slider" aria-label="顶点 A"/>
+            <circle id="handle-B" class="vertex-handle" cx="320" cy="320" r="9" data-vertex="B" role="slider" aria-label="顶点 B"/>
+            <circle id="handle-C" cx="80" cy="320" r="6" fill="var(--tri-neutral-400)" stroke="var(--tri-card)" stroke-width="2" opacity="0.6"/>
+          </svg>
+
+          <div class="mt-4 w-full grid grid-cols-3 gap-2 text-center text-sm">
+            <div class="bg-muted rounded-md py-2">
+              <div class="text-xs text-muted-foreground">∠A</div>
+              <div id="m-A" class="formula font-semibold text-foreground">45.0°</div>
+            </div>
+            <div class="bg-muted rounded-md py-2">
+              <div class="text-xs text-muted-foreground">∠B</div>
+              <div id="m-B" class="formula font-semibold text-foreground">45.0°</div>
+            </div>
+            <div class="bg-muted rounded-md py-2">
+              <div class="text-xs text-muted-foreground">∠C</div>
+              <div class="formula font-semibold text-foreground">90.0°</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 公式卡片 -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <article class="card p-5">
+            <div class="flex items-center gap-2 mb-3">
+              <span class="inline-flex items-center justify-center w-8 h-8 rounded-md bg-primary text-primary-foreground font-bold formula">A</span>
+              <h3 class="font-semibold text-foreground">角 A 公式</h3>
+            </div>
+            <ul class="space-y-2 text-sm formula text-foreground">
+              <li>∠A = 90° − ∠B = <span class="value-tag" id="f-A-sum">45°</span></li>
+              <li>sin A = a / c = <span class="value-tag" id="f-sinA">0.707</span></li>
+              <li>cos A = b / c = <span class="value-tag" id="f-cosA">0.707</span></li>
+              <li>tan A = a / b = <span class="value-tag" id="f-tanA">1.000</span></li>
+            </ul>
+          </article>
+
+          <article class="card p-5">
+            <div class="flex items-center gap-2 mb-3">
+              <span class="inline-flex items-center justify-center w-8 h-8 rounded-md bg-primary text-primary-foreground font-bold formula">B</span>
+              <h3 class="font-semibold text-foreground">角 B 公式</h3>
+            </div>
+            <ul class="space-y-2 text-sm formula text-foreground">
+              <li>∠B = 90° − ∠A = <span class="value-tag" id="f-B-sum">45°</span></li>
+              <li>sin B = b / c = <span class="value-tag" id="f-sinB">0.707</span></li>
+              <li>cos B = a / c = <span class="value-tag" id="f-cosB">0.707</span></li>
+              <li>tan B = b / a = <span class="value-tag" id="f-tanB">1.000</span></li>
+            </ul>
+          </article>
+
+          <article class="card p-5">
+            <div class="flex items-center gap-2 mb-3">
+              <span class="inline-flex items-center justify-center w-8 h-8 rounded-md bg-primary text-primary-foreground font-bold formula">C</span>
+              <h3 class="font-semibold text-foreground">角 C 公式</h3>
+            </div>
+            <ul class="space-y-2 text-sm formula text-foreground">
+              <li>∠C = 90°</li>
+              <li>∠A + ∠B = <span class="value-tag" id="f-AB">90°</span></li>
+              <li>∠A + ∠B + ∠C = 180°</li>
+            </ul>
+          </article>
+
+          <article class="card p-5">
+            <div class="flex items-center gap-2 mb-3">
+              <span class="inline-flex items-center justify-center w-8 h-8 rounded-md bg-muted-foreground/20 text-foreground font-bold formula">c</span>
+              <h3 class="font-semibold text-foreground">线段 AB（斜边）</h3>
+            </div>
+            <ul class="space-y-2 text-sm formula text-foreground">
+              <li>AB = c = <span class="value-tag" id="f-c">3.000</span></li>
+              <li>c = √(a² + b²)</li>
+              <li>c = a / sin A</li>
+              <li>c = b / cos A</li>
+            </ul>
+          </article>
+
+          <article class="card p-5">
+            <div class="flex items-center gap-2 mb-3">
+              <span class="inline-flex items-center justify-center w-8 h-8 rounded-md bg-muted-foreground/20 text-foreground font-bold formula">b</span>
+              <h3 class="font-semibold text-foreground">线段 AC（邻边）</h3>
+            </div>
+            <ul class="space-y-2 text-sm formula text-foreground">
+              <li>AC = b = <span class="value-tag" id="f-b">3.000</span></li>
+              <li>b = √(c² − a²)</li>
+              <li>b = c · cos A</li>
+              <li>b = c · sin B</li>
+            </ul>
+          </article>
+
+          <article class="card p-5">
+            <div class="flex items-center gap-2 mb-3">
+              <span class="inline-flex items-center justify-center w-8 h-8 rounded-md bg-muted-foreground/20 text-foreground font-bold formula">a</span>
+              <h3 class="font-semibold text-foreground">线段 BC（对边）</h3>
+            </div>
+            <ul class="space-y-2 text-sm formula text-foreground">
+              <li>BC = a = <span class="value-tag" id="f-a">3.000</span></li>
+              <li>a = √(c² − b²)</li>
+              <li>a = c · sin A</li>
+              <li>a = c · cos B</li>
+            </ul>
+          </article>
+        </div>
+      </div>
+
+      <!-- 核心关系 -->
+      <section class="mt-6 card p-5 sm:p-6">
+        <h2 class="text-lg font-semibold text-foreground mb-3">核心关系</h2>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm formula text-foreground">
+          <div class="bg-muted rounded-md p-4">
+            <strong class="block mb-1 text-primary">勾股定理</strong>
+            <div>a² + b² = c²</div>
+            <div class="text-xs text-muted-foreground mt-1">a² + b² = <span id="sum-ab">18.00</span> ｜ c² = <span id="sum-c2">18.00</span></div>
+          </div>
+          <div class="bg-muted rounded-md p-4">
+            <strong class="block mb-1 text-primary">内角和</strong>
+            <div>∠A + ∠B + ∠C = 180°</div>
+            <div class="text-xs text-muted-foreground mt-1">实际和 = <span id="sum-angles">180.0°</span></div>
+          </div>
+        </div>
+      </section>
+    </section>
+
+    <!-- ============ 视图 2：单位圆 ============ -->
+    <section data-view="circle" class="view-panel" hidden>
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-8 items-start">
+        <div class="card p-5 sm:p-6 flex flex-col items-center">
+          <h2 class="text-lg font-semibold text-foreground mb-3 self-start">单位圆与三角函数</h2>
+          <svg id="circle-svg" viewBox="0 0 380 380" class="w-full max-w-md h-auto touch-none select-none">
+            <!-- 坐标轴 -->
+            <line x1="20" y1="190" x2="360" y2="190" stroke="var(--tri-border)" stroke-width="1.5"/>
+            <line x1="190" y1="20" x2="190" y2="360" stroke="var(--tri-border)" stroke-width="1.5"/>
+            <!-- 箭头 -->
+            <polygon points="360,190 350,186 350,194" fill="var(--tri-border)"/>
+            <polygon points="190,20 186,30 194,30" fill="var(--tri-border)"/>
+            <!-- 轴标签 -->
+            <text x="355" y="205" class="formula" font-size="12" fill="var(--tri-muted-foreground)">x</text>
+            <text x="200" y="28" class="formula" font-size="12" fill="var(--tri-muted-foreground)">y</text>
+            <text x="194" y="205" class="formula" font-size="11" fill="var(--tri-muted-foreground)">O</text>
+            <!-- 刻度 -->
+            <g id="circle-ticks" stroke="var(--tri-border)" stroke-width="1"></g>
+            <!-- 单位圆 -->
+            <circle cx="190" cy="190" r="140" fill="none" stroke="var(--tri-primary)" stroke-width="2" opacity="0.5"/>
+            <!-- 角度扇形 -->
+            <path id="angle-sector" d="" fill="var(--tri-primary)" fill-opacity="0.1"/>
+            <!-- sin 线（垂直） -->
+            <line id="sin-line" x1="190" y1="190" x2="190" y2="190" stroke="var(--tri-state-error)" stroke-width="3"/>
+            <!-- cos 线（水平） -->
+            <line id="cos-line" x1="190" y1="190" x2="190" y2="190" stroke="var(--tri-state-success)" stroke-width="3"/>
+            <!-- tan 切线 -->
+            <line id="tan-line" x1="190" y1="190" x2="190" y2="190" stroke="var(--tri-state-warning)" stroke-width="2" stroke-dasharray="4 3"/>
+            <!-- 半径 -->
+            <line id="radius-line" x1="190" y1="190" x2="330" y2="190" stroke="var(--tri-primary)" stroke-width="2"/>
+            <!-- 角度弧 -->
+            <path id="angle-arc" d="" fill="none" stroke="var(--tri-primary)" stroke-width="2"/>
+            <!-- 拖动点 -->
+            <circle id="circle-point" class="draggable-point" cx="330" cy="190" r="8" role="slider" aria-label="单位圆上的点"/>
+          </svg>
+          <div class="mt-3 text-xs text-muted-foreground text-center">拖动圆上的点 · 或点击圆周定位</div>
+        </div>
+
+        <div class="space-y-4">
+          <div class="card p-5">
+            <div class="flex items-center justify-between mb-3">
+              <h3 class="font-semibold text-foreground">实时数值</h3>
+              <div class="text-sm text-muted-foreground formula">θ = <span id="c-angle" class="text-primary font-semibold">0°</span></div>
+            </div>
+            <div class="grid grid-cols-2 gap-3 text-sm">
+              <div class="bg-muted rounded-md p-3">
+                <div class="flex items-center gap-2 mb-1">
+                  <span class="legend-dot" style="background:var(--tri-state-success)"></span>
+                  <span class="text-muted-foreground text-xs">cos θ（邻边 x）</span>
+                </div>
+                <div class="formula text-lg font-semibold text-foreground" id="c-cos">1.000</div>
+              </div>
+              <div class="bg-muted rounded-md p-3">
+                <div class="flex items-center gap-2 mb-1">
+                  <span class="legend-dot" style="background:var(--tri-state-error)"></span>
+                  <span class="text-muted-foreground text-xs">sin θ（对边 y）</span>
+                </div>
+                <div class="formula text-lg font-semibold text-foreground" id="c-sin">0.000</div>
+              </div>
+              <div class="bg-muted rounded-md p-3 col-span-2">
+                <div class="flex items-center gap-2 mb-1">
+                  <span class="legend-dot" style="background:var(--tri-state-warning)"></span>
+                  <span class="text-muted-foreground text-xs">tan θ = sin/cos</span>
+                </div>
+                <div class="formula text-lg font-semibold text-foreground" id="c-tan">0.000</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="card p-5">
+            <h3 class="font-semibold text-foreground mb-3">关键角度参考</h3>
+            <div class="grid grid-cols-4 gap-2 text-center text-xs formula">
+              <button class="preset-btn" data-angle="0">0°</button>
+              <button class="preset-btn" data-angle="30">30°</button>
+              <button class="preset-btn" data-angle="45">45°</button>
+              <button class="preset-btn" data-angle="60">60°</button>
+              <button class="preset-btn" data-angle="90">90°</button>
+              <button class="preset-btn" data-angle="120">120°</button>
+              <button class="preset-btn" data-angle="135">135°</button>
+              <button class="preset-btn" data-angle="180">180°</button>
+              <button class="preset-btn" data-angle="210">210°</button>
+              <button class="preset-btn" data-angle="240">240°</button>
+              <button class="preset-btn" data-angle="270">270°</button>
+              <button class="preset-btn" data-angle="360">360°</button>
+            </div>
+            <div class="mt-3 text-xs text-muted-foreground">
+              <p>提示：sin/cos 的值域为 [−1, 1]；tan 在 90° 与 270° 处无定义。</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ 视图 3：函数曲线 ============ -->
+    <section data-view="curves" class="view-panel" hidden>
+      <div class="card p-5 sm:p-6">
+        <div class="flex flex-wrap items-center justify-between gap-3 mb-4">
+          <h2 class="text-lg font-semibold text-foreground">三角函数曲线</h2>
+          <div class="flex flex-wrap gap-2">
+            <span class="legend-chip active" data-fn="sin">
+              <span class="legend-dot" style="background:var(--tri-primary)"></span>sin x
+            </span>
+            <span class="legend-chip active" data-fn="cos">
+              <span class="legend-dot" style="background:var(--tri-state-success)"></span>cos x
+            </span>
+            <span class="legend-chip" data-fn="tan">
+              <span class="legend-dot" style="background:var(--tri-state-warning)"></span>tan x
+            </span>
+          </div>
+        </div>
+
+        <svg id="curves-svg" viewBox="0 0 720 360" class="w-full h-auto touch-none select-none" style="cursor:crosshair">
+          <!-- 网格与坐标轴由 JS 绘制 -->
+          <g id="curves-grid"></g>
+          <g id="curves-axes"></g>
+          <g id="curves-paths"></g>
+          <line id="cursor-line" x1="0" y1="0" x2="0" y2="360" stroke="var(--tri-muted-foreground)" stroke-width="1" stroke-dasharray="3 3" opacity="0.5" style="display:none"/>
+          <circle id="cursor-sin" r="4" fill="var(--tri-primary)" style="display:none"/>
+          <circle id="cursor-cos" r="4" fill="var(--tri-state-success)" style="display:none"/>
+          <circle id="cursor-tan" r="4" fill="var(--tri-state-warning)" style="display:none"/>
+        </svg>
+
+        <div class="mt-4 grid grid-cols-2 sm:grid-cols-4 gap-3 text-sm">
+          <div class="bg-muted rounded-md p-3">
+            <div class="text-xs text-muted-foreground">x</div>
+            <div class="formula font-semibold text-foreground" id="cv-x">0.00</div>
+          </div>
+          <div class="bg-muted rounded-md p-3">
+            <div class="text-xs text-muted-foreground">sin x</div>
+            <div class="formula font-semibold text-primary" id="cv-sin">0.000</div>
+          </div>
+          <div class="bg-muted rounded-md p-3">
+            <div class="text-xs text-muted-foreground">cos x</div>
+            <div class="formula font-semibold" style="color:var(--tri-state-success)" id="cv-cos">1.000</div>
+          </div>
+          <div class="bg-muted rounded-md p-3">
+            <div class="text-xs text-muted-foreground">tan x</div>
+            <div class="formula font-semibold" style="color:var(--tri-state-warning)" id="cv-tan">0.000</div>
+          </div>
+        </div>
+        <p class="mt-3 text-xs text-muted-foreground">在图上移动鼠标（或触摸）查看对应 x 的函数值。横轴范围 [−2π, 2π]。</p>
+      </div>
+    </section>
+
+    <!-- ============ 视图 4：求解器 ============ -->
+    <section data-view="solver" class="view-panel" hidden>
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-8 items-start">
+        <div class="card p-5 sm:p-6">
+          <h2 class="text-lg font-semibold text-foreground mb-1">三角形求解器</h2>
+          <p class="text-xs text-muted-foreground mb-4">输入两条已知量（边或一条边 + 一个锐角），自动求解其余。</p>
+
+          <div class="grid grid-cols-2 gap-3 mb-4">
+            <label class="block">
+              <span class="text-xs text-muted-foreground formula">边 a（对边）</span>
+              <input type="number" id="in-a" class="tri-input mt-1" placeholder="如 3" step="0.01" min="0">
+            </label>
+            <label class="block">
+              <span class="text-xs text-muted-foreground formula">边 b（邻边）</span>
+              <input type="number" id="in-b" class="tri-input mt-1" placeholder="如 4" step="0.01" min="0">
+            </label>
+            <label class="block">
+              <span class="text-xs text-muted-foreground formula">边 c（斜边）</span>
+              <input type="number" id="in-c" class="tri-input mt-1" placeholder="如 5" step="0.01" min="0">
+            </label>
+            <label class="block">
+              <span class="text-xs text-muted-foreground formula">∠A（度）</span>
+              <input type="number" id="in-A" class="tri-input mt-1" placeholder="0–90" step="0.1" min="0" max="90">
+            </label>
+          </div>
+
+          <div class="flex flex-wrap gap-2 mb-4">
+            <button class="btn-primary" id="solve-btn">求解</button>
+            <button class="btn-ghost" id="solver-clear">清空</button>
+            <button class="btn-ghost" data-preset="3-4-5">3-4-5</button>
+            <button class="btn-ghost" data-preset="30-60-90">30-60-90</button>
+            <button class="btn-ghost" data-preset="45-45-90">45-45-90</button>
+          </div>
+
+          <div id="solver-msg" class="text-sm text-muted-foreground min-h-[1.25rem]"></div>
+        </div>
+
+        <div class="card p-5 sm:p-6">
+          <h3 class="font-semibold text-foreground mb-3">求解结果</h3>
+          <div class="space-y-2 text-sm formula">
+            <div class="flex items-center justify-between py-2 border-b border-border">
+              <span class="text-muted-foreground">边 a</span>
+              <span class="font-semibold text-foreground" id="out-a">—</span>
+            </div>
+            <div class="flex items-center justify-between py-2 border-b border-border">
+              <span class="text-muted-foreground">边 b</span>
+              <span class="font-semibold text-foreground" id="out-b">—</span>
+            </div>
+            <div class="flex items-center justify-between py-2 border-b border-border">
+              <span class="text-muted-foreground">边 c</span>
+              <span class="font-semibold text-foreground" id="out-c">—</span>
+            </div>
+            <div class="flex items-center justify-between py-2 border-b border-border">
+              <span class="text-muted-foreground">∠A</span>
+              <span class="font-semibold text-foreground" id="out-A">—</span>
+            </div>
+            <div class="flex items-center justify-between py-2 border-b border-border">
+              <span class="text-muted-foreground">∠B</span>
+              <span class="font-semibold text-foreground" id="out-B">—</span>
+            </div>
+            <div class="flex items-center justify-between py-2 border-b border-border">
+              <span class="text-muted-foreground">∠C</span>
+              <span class="font-semibold text-foreground">90°</span>
+            </div>
+            <div class="flex items-center justify-between py-2">
+              <span class="text-muted-foreground">面积</span>
+              <span class="font-semibold text-foreground" id="out-area">—</span>
+            </div>
+            <div class="flex items-center justify-between py-2">
+              <span class="text-muted-foreground">周长</span>
+              <span class="font-semibold text-foreground" id="out-perim">—</span>
+            </div>
+          </div>
+
+          <!-- 小预览图 -->
+          <div class="mt-4 pt-4 border-t border-border">
+            <svg id="solver-preview" viewBox="0 0 240 200" class="w-full h-auto"></svg>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <footer class="mt-10 text-center text-xs text-muted-foreground">
+      <p>三角函数解析图 · 基于设计稿扩展的交互式实现</p>
+    </footer>
+  </main>
+
+  <script src="app.js"></script>
+</body>
+</html>

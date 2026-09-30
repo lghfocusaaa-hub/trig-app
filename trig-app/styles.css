@@ -1,0 +1,338 @@
+/* ============================================================
+   设计令牌 —— 与设计稿完全一致
+   ============================================================ */
+:root {
+  --tri-background: #f8fafc;
+  --tri-foreground: #1e293b;
+  --tri-card: #ffffff;
+  --tri-card-foreground: #1e293b;
+  --tri-popover: #ffffff;
+  --tri-popover-foreground: #1e293b;
+  --tri-primary: #2563eb;
+  --tri-primary-foreground: #ffffff;
+  --tri-muted: #f1f5f9;
+  --tri-muted-foreground: #64748b;
+  --tri-border: #e2e8f0;
+  --tri-input: #e2e8f0;
+  --tri-ring: #2563eb;
+
+  --tri-primary-50: #eff6ff;
+  --tri-primary-100: #dbeafe;
+  --tri-primary-200: #bfdbfe;
+  --tri-primary-300: #93c5fd;
+  --tri-primary-400: #60a5fa;
+  --tri-primary-500: #3b82f6;
+  --tri-primary-600: #2563eb;
+  --tri-primary-700: #1d4ed8;
+  --tri-primary-800: #1e40af;
+  --tri-primary-900: #1e3a8a;
+
+  --tri-neutral-50: #f8fafc;
+  --tri-neutral-100: #f1f5f9;
+  --tri-neutral-200: #e2e8f0;
+  --tri-neutral-300: #cbd5e1;
+  --tri-neutral-400: #94a3b8;
+  --tri-neutral-500: #64748b;
+  --tri-neutral-600: #475569;
+  --tri-neutral-700: #334155;
+  --tri-neutral-800: #1e293b;
+  --tri-neutral-900: #0f172a;
+
+  --tri-state-success: #16a34a;
+  --tri-state-warning: #d97706;
+  --tri-state-error: #dc2626;
+  --tri-state-info: #2563eb;
+
+  --tri-radius-small: 4px;
+  --tri-radius-medium: 8px;
+  --tri-radius-large: 12px;
+  --tri-radius-full: 9999px;
+
+  --tri-font-title: "Inter", "PingFang SC", "Microsoft YaHei", system-ui, sans-serif;
+  --tri-font-body: "Inter", "PingFang SC", "Microsoft YaHei", system-ui, sans-serif;
+  --tri-font-mono: "JetBrains Mono", "Fira Code", "Cascadia Code", Consolas, monospace;
+}
+
+/* 暗色主题 */
+html[data-theme="dark"] {
+  --tri-background: #0f172a;
+  --tri-foreground: #e2e8f0;
+  --tri-card: #1e293b;
+  --tri-card-foreground: #e2e8f0;
+  --tri-popover: #1e293b;
+  --tri-popover-foreground: #e2e8f0;
+  --tri-primary: #3b82f6;
+  --tri-primary-foreground: #ffffff;
+  --tri-muted: #334155;
+  --tri-muted-foreground: #94a3b8;
+  --tri-border: #334155;
+  --tri-input: #334155;
+  --tri-ring: #3b82f6;
+
+  --tri-primary-50: #172554;
+  --tri-primary-100: #1e3a8a;
+  --tri-primary-200: #1e40af;
+  --tri-primary-300: #1d4ed8;
+  --tri-primary-400: #2563eb;
+  --tri-primary-500: #3b82f6;
+  --tri-primary-600: #60a5fa;
+  --tri-primary-700: #93c5fd;
+  --tri-primary-800: #bfdbfe;
+  --tri-primary-900: #dbeafe;
+}
+
+html {
+  font-family: var(--tri-font-body);
+  background-color: var(--tri-background);
+  color: var(--tri-foreground);
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+body { background: var(--tri-background); color: var(--tri-foreground); }
+
+.font-title { font-family: var(--tri-font-title); }
+.font-mono { font-family: var(--tri-font-mono); }
+.formula { font-family: var(--tri-font-mono); letter-spacing: 0.01em; }
+
+/* ============================================================
+   语义化工具类（设计稿中的 fallback 类）
+   ============================================================ */
+.bg-background { background-color: var(--tri-background); }
+.text-foreground { color: var(--tri-foreground); }
+.bg-card { background-color: var(--tri-card); }
+.text-card-foreground { color: var(--tri-card-foreground); }
+.bg-primary { background-color: var(--tri-primary); }
+.text-primary { color: var(--tri-primary); }
+.text-primary-foreground { color: var(--tri-primary-foreground); }
+.bg-muted { background-color: var(--tri-muted); }
+.text-muted-foreground { color: var(--tri-muted-foreground); }
+.border-border { border-color: var(--tri-border); }
+.bg-input { background-color: var(--tri-input); }
+
+/* ============================================================
+   组件样式
+   ============================================================ */
+.no-scrollbar::-webkit-scrollbar { display: none; }
+.no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
+.card {
+  background-color: var(--tri-card);
+  border: 1px solid var(--tri-border);
+  border-radius: var(--tri-radius-large);
+  box-shadow: 0 1px 2px 0 rgba(0,0,0,0.04);
+}
+
+.angle-arc {
+  fill: none;
+  stroke: var(--tri-primary);
+  stroke-width: 2;
+}
+
+/* Tab 按钮 */
+.tab-btn {
+  padding: 0.5rem 1rem;
+  border-radius: var(--tri-radius-full);
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--tri-muted-foreground);
+  background: transparent;
+  border: 1px solid transparent;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  white-space: nowrap;
+}
+.tab-btn:hover { color: var(--tri-foreground); background: var(--tri-muted); }
+.tab-btn.active {
+  color: var(--tri-primary);
+  background: var(--tri-primary-50);
+  border-color: var(--tri-primary-200);
+}
+html[data-theme="dark"] .tab-btn.active {
+  background: rgba(59,130,246,0.15);
+  border-color: var(--tri-primary-600);
+}
+
+/* 输入框 */
+.tri-input {
+  width: 100%;
+  padding: 0.5rem 0.75rem;
+  background: var(--tri-background);
+  border: 1px solid var(--tri-input);
+  border-radius: var(--tri-radius-medium);
+  color: var(--tri-foreground);
+  font-family: var(--tri-font-mono);
+  font-size: 0.875rem;
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+.tri-input:focus {
+  outline: none;
+  border-color: var(--tri-primary);
+  box-shadow: 0 0 0 3px rgba(37,99,235,0.15);
+}
+.tri-input:disabled { opacity: 0.5; cursor: not-allowed; }
+
+/* 主按钮 */
+.btn-primary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  background: var(--tri-primary);
+  color: var(--tri-primary-foreground);
+  border-radius: var(--tri-radius-medium);
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.15s;
+  border: none;
+}
+.btn-primary:hover { background: var(--tri-primary-700); }
+html[data-theme="dark"] .btn-primary:hover { background: var(--tri-primary-500); }
+
+.btn-ghost {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.5rem 0.75rem;
+  background: transparent;
+  color: var(--tri-foreground);
+  border-radius: var(--tri-radius-medium);
+  font-size: 0.875rem;
+  cursor: pointer;
+  border: 1px solid var(--tri-border);
+  transition: background 0.15s;
+}
+.btn-ghost:hover { background: var(--tri-muted); }
+
+/* SVG 顶点手柄 */
+.vertex-handle {
+  fill: var(--tri-primary);
+  stroke: var(--tri-card);
+  stroke-width: 3;
+  cursor: grab;
+  transition: filter 0.15s;
+}
+.vertex-handle:hover { filter: drop-shadow(0 0 6px var(--tri-primary)); }
+.vertex-handle:active { cursor: grabbing; }
+
+.draggable-point {
+  fill: var(--tri-primary);
+  stroke: var(--tri-card);
+  stroke-width: 3;
+  cursor: grab;
+}
+.draggable-point:active { cursor: grabbing; }
+
+/* 函数曲线图例 */
+.legend-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.25rem 0.6rem;
+  border-radius: var(--tri-radius-full);
+  font-size: 0.75rem;
+  cursor: pointer;
+  border: 1px solid var(--tri-border);
+  background: var(--tri-card);
+  color: var(--tri-muted-foreground);
+  user-select: none;
+  transition: all 0.15s;
+}
+.legend-chip.active { color: var(--tri-foreground); border-color: var(--tri-primary); }
+.legend-dot { width: 10px; height: 10px; border-radius: 9999px; }
+
+/* 折叠面板 */
+.collapsible-panel {
+  overflow: hidden;
+  transition: max-height 0.25s ease, opacity 0.2s ease;
+}
+
+/* 视图切换动画 */
+.view-panel { animation: fadeIn 0.25s ease; }
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(4px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* 数值高亮 */
+.value-tag {
+  display: inline-block;
+  padding: 0.1rem 0.4rem;
+  background: var(--tri-primary-50);
+  color: var(--tri-primary-700);
+  border-radius: var(--tri-radius-small);
+  font-family: var(--tri-font-mono);
+  font-weight: 600;
+  min-width: 3rem;
+  text-align: center;
+}
+html[data-theme="dark"] .value-tag {
+  background: rgba(59,130,246,0.18);
+  color: var(--tri-primary-700);
+}
+
+/* ============================================================
+   自定义滚动条样式（网页右侧/底部自带滚动条）
+   ============================================================ */
+/* WebKit / Chromium / Edge / Safari */
+::-webkit-scrollbar {
+  width: 12px;
+  height: 12px;
+}
+::-webkit-scrollbar-track {
+  background: var(--tri-muted);
+  border-radius: var(--tri-radius-full);
+  margin: 2px;
+}
+::-webkit-scrollbar-thumb {
+  background: var(--tri-neutral-300);
+  border-radius: var(--tri-radius-full);
+  border: 3px solid var(--tri-background);
+  background-clip: padding-box;
+  transition: background 0.15s;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--tri-primary);
+  background-clip: padding-box;
+  border: 3px solid var(--tri-background);
+}
+::-webkit-scrollbar-thumb:active {
+  background: var(--tri-primary-700);
+  background-clip: padding-box;
+}
+::-webkit-scrollbar-corner {
+  background: transparent;
+}
+/* 注：横向滚动区域（Tab 栏）的隐藏滚动条规则见上方 .no-scrollbar */
+
+/* Firefox */
+html {
+  scrollbar-width: thin;
+  scrollbar-color: var(--tri-neutral-300) var(--tri-muted);
+}
+html[data-theme="dark"] {
+  scrollbar-color: var(--tri-neutral-600) var(--tri-muted);
+}
+
+/* 预设角度按钮 */
+.preset-btn {
+  padding: 0.4rem 0.5rem;
+  background: var(--tri-muted);
+  color: var(--tri-foreground);
+  border-radius: var(--tri-radius-medium);
+  font-family: var(--tri-font-mono);
+  cursor: pointer;
+  border: 1px solid transparent;
+  transition: all 0.15s;
+}
+.preset-btn:hover { background: var(--tri-primary-50); color: var(--tri-primary); border-color: var(--tri-primary-200); }
+html[data-theme="dark"] .preset-btn:hover { background: rgba(59,130,246,0.15); }
+
+/* 求解器预设按钮使用 ghost 样式即可，复用 .btn-ghost */
+
+/* 移动端适配 */
+@media (max-width: 640px) {
+  .tab-btn { padding: 0.4rem 0.7rem; font-size: 0.8rem; }
+}
